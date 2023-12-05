@@ -1,0 +1,89 @@
+#include <iostream>
+
+// Interface puramente virtual para a fechadura
+class Lockable {
+public:
+    virtual bool lock() = 0;
+    virtual bool unlock() = 0;
+    virtual ~Lockable() {}
+};
+
+// Classe abstrata para representar uma porta
+class Door {
+protected:
+    static bool isOpen;  // Atributo estático
+
+public:
+    static bool isDoorOpen() {
+        return isOpen;
+    }
+
+    virtual void open() = 0;
+    virtual void close() = 0;
+};
+
+bool Door::isOpen = false;
+
+// Implementação da classe concreta para a fechadura
+class SmartLock : public Door, public Lockable {
+public:
+    SmartLock() {
+        // Construtor
+    }
+
+    ~SmartLock() override {
+        // Destrutor
+    }
+
+    bool lock() override {
+        if (!Door::isOpen) {
+            std::cout << "Trancando a porta." << std::endl;
+            return true;
+        } else {
+            std::cout << "A porta está aberta. Não pode ser trancada." << std::endl;
+            return false;
+        }
+    }
+
+    bool unlock() override {
+        std::cout << "Destrancando a porta." << std::endl;
+        return true;
+    }
+
+    void open() override {
+        Door::isOpen = true;
+        std::cout << "Abrindo a porta." << std::endl;
+    }
+
+    void close() override {
+        Door::isOpen = false;
+        std::cout << "Fechando a porta." << std::endl;
+    }
+};
+
+// Classe de teste unitário
+class TestSmartLock {
+public:
+    static void runTests() {
+        SmartLock smartLock;
+
+        // Testando abrir e fechar a porta
+        smartLock.open();
+        assert(Door::isDoorOpen() == true);
+        smartLock.close();
+        assert(Door::isDoorOpen() == false);
+
+        // Testando trancar e destrancar a porta
+        assert(smartLock.lock() == false);  // Não pode trancar uma porta aberta
+        smartLock.open();
+        assert(smartLock.lock() == true);
+        assert(smartLock.unlock() == true);
+    }
+};
+
+int main() {
+    // Executando os testes unitários
+    TestSmartLock::runTests();
+
+    return 0;
+}
